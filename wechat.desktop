@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WeChat
+Exec=".../dochat.sh"
+Icon=.../wechat.png
+Type=Application
+Terminal=false
+Categories=Office;
+SingleMainWindow=true

@@ -10,72 +10,10 @@
 #
 set -eo pipefail
 
-#
-# The defeault docker image version which confirmed that most stable.
-#   See: https://github.com/huan/docker-wechat/issues/29#issuecomment-619491488
-#
-# Updates:
-#   2020-04-01: 2.7.1.85
-#   2020-08-24: 3.3.0.115 (not working yet)
-#   2020-09-01: 3.3.0.115 (alpha testing)
-DEFAULT_WECHAT_VERSION=3.3.0.115
-
-#
-# Get the image version tag from the env
-#
-DOCHAT_IMAGE_VERSION="zixia/wechat:${DOCHAT_WECHAT_VERSION:-${DEFAULT_WECHAT_VERSION}}"
-
-function hello () {
-  cat <<'EOF'
-
-       ____         ____ _           _
-      |  _ \  ___  / ___| |__   __ _| |_
-      | | | |/ _ \| |   | '_ \ / _` | __|
-      | |_| | (_) | |___| | | | (_| | |_
-      |____/ \___/ \____|_| |_|\__,_|\__|
-
-      https://github.com/huan/docker-wechat
-
-                +--------------+
-               /|             /|
-              / |            / |
-             *--+-----------*  |
-             |  |           |  |
-             |  |   盒装    |  |
-             |  |   微信    |  |
-             |  +-----------+--+
-             | /            | /
-             |/             |/
-             *--------------*
-
-      DoChat /dɑɑˈtʃæt/ (Docker-weChat) is:
-
-      📦 a Docker image
-      🤐 for running PC Windows WeChat
-      💻 on your Linux desktop
-      💖 by one-line of command
-
-EOF
-}
-
-function pullUpdate () {
-  if [ -n "$DOCHAT_SKIP_PULL" ]; then
-    return
-  fi
-
-  echo '🚀 Pulling the docker image...'
-  echo
-  docker pull "$DOCHAT_IMAGE_VERSION"
-  echo
-  echo '🚀 Pulling the docker image done.'
-}
-
 function main () {
 
-  hello
-  pullUpdate
-
   DEVICE_ARG=()
+  # change /dev/video* to /dev/nvidia* for Nvidia
   for DEVICE in /dev/video* /dev/snd; do
     DEVICE_ARG+=('--device' "$DEVICE")
   done
@@ -83,11 +21,8 @@ function main () {
     DEVICE_ARG+=('--gpus' 'all' '--env' 'NVIDIA_DRIVER_CAPABILITIES=all')
   fi
 
-  echo '🚀 Starting DoChat /dɑɑˈtʃæt/ ...'
-  echo
-
   # Issue #111 - https://github.com/huan/docker-wechat/issues/111
-  rm -f "$HOME/DoChat/Applcation Data/Tencent/WeChat/All Users/config/configEx.ini"
+  rm -f "$HOME/WeChat/Applcation Data/Tencent/WeChat/All Users/config/configEx.ini"
 
   #
   # --privileged: enable sound (/dev/snd/)
@@ -99,8 +34,8 @@ function main () {
     --rm \
     -i \
     \
-    -v "$HOME/DoChat/WeChat Files/":'/home/user/WeChat Files/' \
-    -v "$HOME/DoChat/Applcation Data":'/home/user/.wine/drive_c/users/user/Application Data/' \
+    -v "$HOME/WeChat/WeChat Files/":'/home/user/WeChat Files/' \
+    -v "$HOME/WeChat/Applcation Data":'/home/user/.wine/drive_c/users/user/Application Data/' \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     \
     -e DISPLAY \
@@ -115,18 +50,12 @@ function main () {
     -e VIDEO_GID="$(getent group video | cut -d: -f3)" \
     -e GID="$(id -g)" \
     -e UID="$(id -u)" \
-    \
     --ipc=host \
-    --privileged \
+    `#--privileged` \
     \
-    "$DOCHAT_IMAGE_VERSION"
+    wechat
 
-    echo
-    echo "📦 DoChat Exited with code [$?]"
-    echo
-    echo '🐞 Bug Report: https://github.com/huan/docker-wechat/issues'
-    echo
-
+    echo "WeChat Exited with code $?"
 }
 
 main

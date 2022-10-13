@@ -24,7 +24,7 @@ function setupFontDpi () {
     'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Hardware Profiles\Current\Software\Fonts' \
     /v LogPixels \
     /t REG_DWORD \
-    /d "${DOCHAT_DPI:-120}" \
+    /d "${DOCHAT_DPI:-192}" \
     /f \
     > /dev/null 2>&1
 }
