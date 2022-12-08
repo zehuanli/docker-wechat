@@ -56,6 +56,8 @@ function main () {
     wechat
 
     echo "WeChat Exited with code $?"
+
+  rm -rf "$HOME/WeChat/Applcation Data/Tencent/WeChat/xweb/crash/Crashpad/reports"
 }
 
 main
